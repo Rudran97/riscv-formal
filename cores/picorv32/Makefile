@@ -1,6 +1,7 @@
 
 picorv32.v:
-	wget -O picorv32.v https://raw.githubusercontent.com/YosysHQ/picorv32/master/picorv32.v
+	# wget --no-check-certificate -O picorv32.v https://raw.githubusercontent.com/YosysHQ/picorv32/master/picorv32.v
+	curl https://raw.githubusercontent.com/YosysHQ/picorv32/master/picorv32.v -o picorv32.v
 
 checks: picorv32.v
 	python3 ../../checks/genchecks.py
