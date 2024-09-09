@@ -1,10 +1,11 @@
 [options]
 mode bmc
-aigsmt z3
+# aigsmt z3
 depth 20
 
 [engines]
-abc bmc3
+# abc bmc3
+smtbmc boolector
 
 [script]
 # verilog_defines -D DEBUGNETS
@@ -15,60 +16,7 @@ verilog_defines -D RISCV_FORMAL_ILEN=32
 # verilog_defines -D RISCV_FORMAL_COMPRESSED
 # verilog_defines -D RISCV_FORMAL_ALIGNED_MEM
 read_verilog -sv rvfi_macros.vh
-
-# verific -vhdl rtl/if_id_reg.vhd
-# verific -vhdl rtl/exe_ma_pkg.vhd
-# verific -vhdl rtl/svx32_core.vhd
-# verific -vhdl rtl/if_id_pkg.vhd
-# verific -vhdl rtl/id_unit.vhd
-# verific -vhdl rtl/int_mul_div.vhd
-# verific -vhdl rtl/mul_unsigned_block.vhd
-# verific -vhdl rtl/core_pkg.vhd
-# verific -vhdl rtl/int_mul_div_pkg.vhd
-# verific -vhdl rtl/id_exe_pkg.vhd
-# verific -vhdl rtl/int_alu.vhd
-# verific -vhdl rtl/id_exe_reg.vhd
-# verific -vhdl rtl/controller.vhd
-# verific -vhdl rtl/exe_unit.vhd
-# verific -vhdl rtl/ma_wb_reg.vhd
-# verific -vhdl rtl/options_pkg.vhd
-# verific -vhdl rtl/ma_unit.vhd
-# verific -vhdl rtl/mem_access_interface_module.vhd
-# verific -vhdl rtl/sys_regiser_file.vhd
-# verific -vhdl rtl/exe_ma_reg.vhd
-# verific -vhdl rtl/decoder.vhd
-# verific -vhdl rtl/int_alu_pkg.vhd
-# verific -vhdl rtl/ma_wb_pkg.vhd
-# verific -vhdl rtl/if_unit.vhd
-# verific -vhdl rtl/data_forward_mux_reg.vhd
-# verific -vhdl rtl/pipeline_test.vhd
-
-ghdl --std=08 rtl/if_id_reg.vhd
-ghdl --std=08 rtl/exe_ma_pkg.vhd
-ghdl --std=08 rtl/svx32_core.vhd
-ghdl --std=08 rtl/if_id_pkg.vhd
-ghdl --std=08 rtl/id_unit.vhd
-ghdl --std=08 rtl/int_mul_div.vhd
-ghdl --std=08 rtl/mul_unsigned_block.vhd
-ghdl --std=08 rtl/core_pkg.vhd
-ghdl --std=08 rtl/int_mul_div_pkg.vhd
-ghdl --std=08 rtl/id_exe_pkg.vhd
-ghdl --std=08 rtl/int_alu.vhd
-ghdl --std=08 rtl/id_exe_reg.vhd
-ghdl --std=08 rtl/controller.vhd
-ghdl --std=08 rtl/exe_unit.vhd
-ghdl --std=08 rtl/ma_wb_reg.vhd
-ghdl --std=08 rtl/options_pkg.vhd
-ghdl --std=08 rtl/ma_unit.vhd
-ghdl --std=08 rtl/mem_access_interface_module.vhd
-ghdl --std=08 rtl/sys_regiser_file.vhd
-ghdl --std=08 rtl/exe_ma_reg.vhd
-ghdl --std=08 rtl/decoder.vhd
-ghdl --std=08 rtl/int_alu_pkg.vhd
-ghdl --std=08 rtl/ma_wb_pkg.vhd
-ghdl --std=08 rtl/if_unit.vhd
-ghdl --std=08 rtl/data_forward_mux_reg.vhd
-ghdl --std=08 rtl/pipeline_test.vhd
+read_verilog -sv svx32_core.v
 
 --pycode-begin--
 with open("../../insns/isa_rv32i.txt") as f:
@@ -82,32 +30,7 @@ prep -nordff -top testbench
 
 [files]
 complete.sv
-rtl/if_id_reg.vhd
-rtl/exe_ma_pkg.vhd
-rtl/svx32_core.vhd
-rtl/if_id_pkg.vhd
-rtl/id_unit.vhd
-rtl/int_mul_div.vhd
-rtl/mul_unsigned_block.vhd
-rtl/core_pkg.vhd
-rtl/int_mul_div_pkg.vhd
-rtl/id_exe_pkg.vhd
-rtl/int_alu.vhd
-rtl/id_exe_reg.vhd
-rtl/controller.vhd
-rtl/exe_unit.vhd
-rtl/ma_wb_reg.vhd
-rtl/options_pkg.vhd
-rtl/ma_unit.vhd
-rtl/mem_access_interface_module.vhd
-rtl/sys_regiser_file.vhd
-rtl/exe_ma_reg.vhd
-rtl/decoder.vhd
-rtl/int_alu_pkg.vhd
-rtl/ma_wb_pkg.vhd
-rtl/if_unit.vhd
-rtl/data_forward_mux_reg.vhd
-rtl/pipeline_test.vhd
+rtl/svx32_core.v
 ../../checks/rvfi_macros.vh
 ../../insns/isa_rv32i.v
 
