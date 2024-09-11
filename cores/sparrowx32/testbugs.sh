@@ -9,7 +9,7 @@ if [ ! -d checks ]; then
 	python3 ../../checks/genchecks.py
 fi
 for bug in 001 002 003 004 005; do
-	sed "s/PICORV32_TESTBUG_NONE/PICORV32_TESTBUG_${bug}/" < checks.cfg > testbug${bug}.cfg
+	sed "s/SPARROWX32_TESTBUG_NONE/SPARROWX32_TESTBUG_${bug}/" < checks.cfg > testbug${bug}.cfg
 	echo "checks::" >> testbugs.mk
 	echo "	\$(MAKE) -C testbug${bug}" >> testbugs.mk
 	if [ ! -d testbug${bug} ]; then
