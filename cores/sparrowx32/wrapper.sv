@@ -5,7 +5,6 @@ module rvfi_wrapper (
 );
 
 	// (* keep *) `rvformal_rand_reg         pil_run_prg;
-	(* keep *) wire                       pol_core_hlt;
 	(* keep *) `rvformal_rand_reg [6:0]   pitr_inst_v_opcode;
 	(* keep *) `rvformal_rand_reg [11:7]  pitr_inst_v_reg_rd;
 	(* keep *) `rvformal_rand_reg [14:12] pitr_inst_v_funct3;
@@ -28,7 +27,6 @@ module rvfi_wrapper (
 		.pil_clk		      (clock               ),
         .pil_rst		      (reset               ),
         .pil_run_prg          (1'b1                ),
-        .pol_core_hlt         (pol_core_hlt        ),
         .pitr_inst_v_opcode   (pitr_inst_v_opcode  ),
         .pitr_inst_v_reg_rd   (pitr_inst_v_reg_rd  ),
         .pitr_inst_v_funct3   (pitr_inst_v_funct3  ),
