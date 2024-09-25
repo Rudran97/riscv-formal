@@ -4,7 +4,6 @@ module rvfi_wrapper (
 	`RVFI_OUTPUTS
 );
 
-	// (* keep *) `rvformal_rand_reg         pil_run_prg;
 	(* keep *) `rvformal_rand_reg [6:0]   pitr_inst_v_opcode;
 	(* keep *) `rvformal_rand_reg [11:7]  pitr_inst_v_reg_rd;
 	(* keep *) `rvformal_rand_reg [14:12] pitr_inst_v_funct3;
@@ -13,7 +12,7 @@ module rvfi_wrapper (
 	(* keep *) `rvformal_rand_reg [31:25] pitr_inst_v_funct7;
 	(* keep *) wire               [31:0]  pov_addr;
 
-	(* keep *) `rvformal_rand_reg        pil_mem_valid;
+	(* keep *) reg                       pil_mem_valid = 0;
 	(* keep *) `rvformal_rand_reg        pil_mem_ack;
 	(* keep *) wire                      pol_mem_req;
 	(* keep *) wire                      pol_mem_wen;
@@ -49,6 +48,40 @@ module rvfi_wrapper (
         // --- risc-v formal interface ---
 		`RVFI_CONN
 	);
+
+	always @(posedge clock) begin
+		if (pil_mem_ack) begin
+			pil_mem_valid <= 1;
+		end else begin
+			pil_mem_valid <= 0;
+		end
+	end
+
+`ifdef SPARROWX32_FAIRNESS
+	(* keep *) reg [2:0] data_req_pending_cycles = 0;
+	(* keep *) reg [2:0] data_rsp_pending_cycles = 0;
+	(* keep *) reg       data_rsp_pending_valid = 0;
+
+	always @(posedge clock) begin
+		if(pol_mem_req && !pil_mem_ack) begin
+			data_req_pending_cycles <= data_req_pending_cycles + 1;
+		end else begin
+			data_req_pending_cycles <= 0;
+		end
+
+		if(data_rsp_pending_valid <= 1) begin
+			data_rsp_pending_cycles <= data_rsp_pending_cycles + 1;
+		end
+		if(pil_mem_valid) begin
+			data_rsp_pending_valid <= 0;
+			data_rsp_pending_cycles <= 0;
+		end
+		if(pol_mem_req && pil_mem_ack && !pol_mem_wen) begin
+			data_rsp_pending_valid <= 1;
+		end
+		restrict(~rvfi_trap && data_req_pending_cycles < 4 && data_rsp_pending_cycles < 4);
+	end
+`endif
 
 endmodule
 

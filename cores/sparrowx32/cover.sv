@@ -1,40 +1,56 @@
 module testbench (
 	input clk,
 
-	input         mem_ready,
-	output        mem_valid,
-	output        mem_instr,
-	output [31:0] mem_addr,
-	output [31:0] mem_wdata,
-	output [3:0]  mem_wstrb,
-	input  [31:0] mem_rdata,
+	input  [6:0]  pitr_inst_v_opcode,
+	input  [4:0]  pitr_inst_v_reg_rd,
+	input  [2:0]  pitr_inst_v_funct3,
+	input  [4:0]  pitr_inst_v_reg_rs1,
+	input  [4:0]  pitr_inst_v_reg_rs2,
+	input  [6:0]  pitr_inst_v_funct7,
+    output [31:0] pov_addr,
+
+	input         pil_mem_valid,
+	input         pil_mem_ack,
+	output        pol_mem_req,
+	output        pol_mem_wen,
+	input  [31:0] piv_mem_rdata,
+	output [31:0] pov_mem_wdata,
+	output [31:0] pov_mem_addr,
+	output [3:0]  pov_mem_byte_sel,
 
 );
-	reg resetn = 0;
+	reg reset = 0;
 	wire trap;
 
 	always @(posedge clk)
-		resetn <= 1;
+		reset <= 0;
 
 	`RVFI_WIRES
 
-	picorv32 #(
-		.REGS_INIT_ZERO(1),
-		.COMPRESSED_ISA(1),
-		.BARREL_SHIFTER(1)
-	) uut (
-		.clk            (clk           ),
-		.resetn         (resetn        ),
-		.trap           (trap          ),
+	svx32_core uut (
+		.pil_clk		      (clock               ),
+        .pil_rst		      (reset               ),
+        .pil_run_prg          (1'b1                ),
+        .pitr_inst_v_opcode   (pitr_inst_v_opcode  ),
+        .pitr_inst_v_reg_rd   (pitr_inst_v_reg_rd  ),
+        .pitr_inst_v_funct3   (pitr_inst_v_funct3  ),
+        .pitr_inst_v_reg_rs1  (pitr_inst_v_reg_rs1 ),
+        .pitr_inst_v_reg_rs2  (pitr_inst_v_reg_rs2 ),
+        .pitr_inst_v_funct7   (pitr_inst_v_funct7  ),
+        .pov_addr             (pov_addr            ),
 
-		.mem_valid      (mem_valid     ),
-		.mem_instr      (mem_instr     ),
-		.mem_ready      (mem_ready     ),
-		.mem_addr       (mem_addr      ),
-		.mem_wdata      (mem_wdata     ),
-		.mem_wstrb      (mem_wstrb     ),
-		.mem_rdata      (mem_rdata     ),
+        // --- mem unit signals ---
+        .pil_mem_valid        (pil_mem_valid       ),
+        .pil_mem_ack          (pil_mem_ack         ),
+        .pol_mem_req          (pol_mem_req         ),
+        .pol_mem_wen          (pol_mem_wen         ),
 
+        .piv_mem_rdata        (piv_mem_rdata       ),
+        .pov_mem_wdata        (pov_mem_wdata       ),
+        .pov_mem_addr         (pov_mem_addr        ),
+        .pov_mem_byte_sel     (pov_mem_byte_sel    ),
+
+        // --- risc-v formal interface ---
 		`RVFI_CONN
 	);
 
@@ -44,7 +60,7 @@ module testbench (
 	integer count_comprinsn = 0;
 
 	always @(posedge clk) begin
-		if (resetn && rvfi_valid) begin
+		if (reset && rvfi_valid) begin
 			if (rvfi_mem_rmask)
 				count_dmemrd <= count_dmemrd + 1;
 			if (rvfi_mem_wmask)
