@@ -10,3 +10,10 @@
 /rtl/*
 /disasm.s
 /disasm.o
+/simulation/*
+/*db/*
+/output*/
+*rpt
+*qsf
+*qws
+*qpf

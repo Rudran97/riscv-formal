@@ -2,8 +2,8 @@ FLAGS=--std=08 --ieee=standard -fexplicit -frelaxed --workdir=rtl/
 
 get_rtl:
 	mkdir -p rtl
-	cp ~/Documents/01_Git_Projects/SparrowX32/rtl/*.vhd rtl/
-	cp tb_svx32_core.vhd rtl/
+	cp ~/Documents/01_GitProjects/SparrowX32/rtl/*.vhd rtl/
+	cp ~/Documents/01_GitProjects/SparrowX32/test/tb/tb_rvfi_svx32_core.vhd rtl/
 
 compile_rtl: get_rtl
 	ghdl -a $(FLAGS) --work=work_rtl rtl/options_pkg.vhd
