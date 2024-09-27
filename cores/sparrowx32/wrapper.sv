@@ -4,6 +4,7 @@ module rvfi_wrapper (
 	`RVFI_OUTPUTS
 );
 
+	(* keep *) reg                        pil_run_prg = 0;
 	(* keep *) `rvformal_rand_reg [6:0]   pitr_inst_v_opcode;
 	(* keep *) `rvformal_rand_reg [11:7]  pitr_inst_v_reg_rd;
 	(* keep *) `rvformal_rand_reg [14:12] pitr_inst_v_funct3;
@@ -13,7 +14,7 @@ module rvfi_wrapper (
 	(* keep *) wire               [31:0]  pov_addr;
 
 	(* keep *) reg                       pil_mem_valid = 0;
-	(* keep *) `rvformal_rand_reg        pil_mem_ack;
+	(* keep *) reg                       pil_mem_ack;
 	(* keep *) wire                      pol_mem_req;
 	(* keep *) wire                      pol_mem_wen;
 
@@ -48,6 +49,16 @@ module rvfi_wrapper (
         // --- risc-v formal interface ---
 		`RVFI_CONN
 	);
+
+	always @(posedge clock) begin
+		if (!reset) begin
+			pil_run_prg <= 1;
+		end
+	end
+
+	always @(posedge clock) begin
+		pil_mem_ack <= pol_mem_req;
+	end
 
 	always @(posedge clock) begin
 		if (pil_mem_ack) begin
