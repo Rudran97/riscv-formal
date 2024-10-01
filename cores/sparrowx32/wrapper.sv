@@ -13,8 +13,8 @@ module rvfi_wrapper (
 	(* keep *) `rvformal_rand_reg [31:25] pitr_inst_v_funct7;
 	(* keep *) wire               [31:0]  pov_addr;
 
-	(* keep *) reg                       pil_mem_valid = 0;
-	(* keep *) reg                       pil_mem_ack;
+	(* keep *) `rvformal_rand_reg        pil_mem_valid;
+	(* keep *) `rvformal_rand_reg        pil_mem_ack;
 	(* keep *) wire                      pol_mem_req;
 	(* keep *) wire                      pol_mem_wen;
 
@@ -56,17 +56,17 @@ module rvfi_wrapper (
 		end
 	end
 
-	always @(posedge clock) begin
-		pil_mem_ack <= pol_mem_req;
-	end
+	// always @(posedge clock) begin
+	// 	pil_mem_ack <= pol_mem_req;
+	// end
 
-	always @(posedge clock) begin
-		if (pil_mem_ack) begin
-			pil_mem_valid <= 1;
-		end else begin
-			pil_mem_valid <= 0;
-		end
-	end
+	// always @(posedge clock) begin
+	// 	if (pil_mem_ack) begin
+	// 		pil_mem_valid <= 1;
+	// 	end else begin
+	// 		pil_mem_valid <= 0;
+	// 	end
+	// end
 
 `ifdef SPARROWX32_FAIRNESS
 	(* keep *) reg [2:0] data_req_pending_cycles = 0;
