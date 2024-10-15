@@ -17,6 +17,8 @@
 import os, sys, shutil, re
 from functools import reduce
 
+NO_DIV = True # Sparrow Flag - When True, no div and rem instruction would be checked
+
 nret = 1
 isa = "rv32i"
 ilen = 32
@@ -533,8 +535,13 @@ def check_insn(grp, insn, chanidx, csr_mode=False, illegal_csr=False):
 for grp in groups:
     with open(f"../../insns/isa_{isa}.txt") as isa_file:
         for insn in isa_file:
-            for chanidx in range(nret):
-                check_insn(grp, insn.strip(), chanidx)
+            if NO_DIV:
+                if "div" not in insn.strip() and "rem" not in insn.strip():
+                    for chanidx in range(nret):
+                        check_insn(grp, insn.strip(), chanidx)
+            else:
+                for chanidx in range(nret):
+                    check_insn(grp, insn.strip(), chanidx)
 
     for csr in sorted(csrs):
         for chanidx in range(nret):
