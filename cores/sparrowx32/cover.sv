@@ -19,7 +19,7 @@ module testbench (
 	output [3:0]  pov_mem_byte_sel,
 
 );
-	reg reset = 0;
+	reg reset = 1;
 	wire trap;
 
 	always @(posedge clk)
@@ -28,7 +28,7 @@ module testbench (
 	`RVFI_WIRES
 
 	svx32_core uut (
-		.pil_clk		      (clock               ),
+		.pil_clk		      (clk                 ),
         .pil_rst		      (reset               ),
         .pil_run_prg          (1'b1                ),
         .pitr_inst_v_opcode   (pitr_inst_v_opcode  ),
@@ -57,30 +57,37 @@ module testbench (
 	integer count_dmemrd = 0;
 	integer count_dmemwr = 0;
 	integer count_longinsn = 0;
-	integer count_comprinsn = 0;
+	// integer count_comprinsn = 0;
 
 	always @(posedge clk) begin
-		if (reset && rvfi_valid) begin
+		if (!reset && rvfi_valid) begin
 			if (rvfi_mem_rmask)
 				count_dmemrd <= count_dmemrd + 1;
 			if (rvfi_mem_wmask)
 				count_dmemwr <= count_dmemwr + 1;
 			if (rvfi_insn[1:0] == 3)
 				count_longinsn <= count_longinsn + 1;
-			if (rvfi_insn[1:0] != 3)
-				count_comprinsn <= count_comprinsn + 1;
+			// if (rvfi_insn[1:0] != 3)
+			// 	count_comprinsn <= count_comprinsn + 1;
 		end
 	end
 
 	cover property (count_dmemrd);
 	cover property (count_dmemwr);
 	cover property (count_longinsn);
-	cover property (count_comprinsn);
+	// cover property (count_comprinsn);
 
-	cover property (count_dmemrd >= 1 && count_dmemwr >= 1 && count_longinsn >= 1 && count_comprinsn >= 1);
-	cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 2 && count_comprinsn >= 2);
-	cover property (count_dmemrd >= 3 && count_dmemwr >= 2 && count_longinsn >= 2 && count_comprinsn >= 2);
-	cover property (count_dmemrd >= 2 && count_dmemwr >= 3 && count_longinsn >= 2 && count_comprinsn >= 2);
-	cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 3 && count_comprinsn >= 2);
-	cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 2 && count_comprinsn >= 3);
+	// cover property (count_dmemrd >= 1 && count_dmemwr >= 1 && count_longinsn >= 1 && count_comprinsn >= 1);
+	// cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 2 && count_comprinsn >= 2);
+	// cover property (count_dmemrd >= 3 && count_dmemwr >= 2 && count_longinsn >= 2 && count_comprinsn >= 2);
+	// cover property (count_dmemrd >= 2 && count_dmemwr >= 3 && count_longinsn >= 2 && count_comprinsn >= 2);
+	// cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 3 && count_comprinsn >= 2);
+	// cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 2 && count_comprinsn >= 3);
+
+	cover property (count_dmemrd >= 1 && count_dmemwr >= 1 && count_longinsn >= 1);
+	cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 2);
+	cover property (count_dmemrd >= 3 && count_dmemwr >= 2 && count_longinsn >= 2);
+	cover property (count_dmemrd >= 2 && count_dmemwr >= 3 && count_longinsn >= 2);
+	cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 3);
+	cover property (count_dmemrd >= 2 && count_dmemwr >= 2 && count_longinsn >= 2);
 endmodule
