@@ -2,8 +2,8 @@ FLAGS=--std=08 --ieee=standard -fexplicit -frelaxed --workdir=rtl/
 
 get_rtl:
 	mkdir -p rtl
-	cp ~/Documents/01_GitProjects/SparrowX32/rtl/*.vhd rtl/
-	cp ~/Documents/01_GitProjects/SparrowX32/test/tb/tb_rvfi_svx32_core.vhd rtl/
+	cp ~/Documents/01_Git_Projects/SparrowX32/rtl/*.vhd rtl/
+#	cp ~/Documents/01_Git_Projects/SparrowX32/test/tb/tb_rvfi_svx32_core.vhd rtl/
 
 compile_rtl: get_rtl
 	ghdl -a $(FLAGS) --work=work_rtl rtl/options_pkg.vhd
@@ -11,6 +11,8 @@ compile_rtl: get_rtl
 	ghdl -a $(FLAGS) --work=work_rtl rtl/int_mul_div_pkg.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/int_alu_pkg.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/core_pkg.vhd
+	ghdl -a $(FLAGS) --work=work_rtl rtl/compressed_decoder_pkg.vhd
+	ghdl -a $(FLAGS) --work=work_rtl rtl/compressed_decoder.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/controller.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/if_unit.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/mem_access_interface_module.vhd
@@ -47,6 +49,6 @@ check: checks
 
 clean:
 	rm -f cexdata-*.zip
-	rm -rf disasm.o disasm.s checks/ cexdata-*/ rtl/ complete/
+	rm -rf disasm.o disasm.s checks/ cexdata-*/ rtl/ complete/ cover/
 	rm -f testbug*.cfg
 	rm -rf testbug*/
