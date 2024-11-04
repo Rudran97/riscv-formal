@@ -5,12 +5,7 @@ module rvfi_wrapper (
 );
 
 	(* keep *) reg                        pil_run_prg = 0;
-	(* keep *) `rvformal_rand_reg [6:0]   pitr_inst_v_opcode;
-	(* keep *) `rvformal_rand_reg [11:7]  pitr_inst_v_reg_rd;
-	(* keep *) `rvformal_rand_reg [14:12] pitr_inst_v_funct3;
-	(* keep *) `rvformal_rand_reg [19:15] pitr_inst_v_reg_rs1;
-	(* keep *) `rvformal_rand_reg [24:20] pitr_inst_v_reg_rs2;
-	(* keep *) `rvformal_rand_reg [31:25] pitr_inst_v_funct7;
+	(* keep *) `rvformal_rand_reg [31:0]  piv_inst;
 	(* keep *) wire               [31:0]  pov_addr;
 
 	(* keep *) `rvformal_rand_reg        pil_mem_valid;
@@ -22,6 +17,20 @@ module rvfi_wrapper (
 	(* keep *) wire               [31:0] pov_mem_wdata;
 	(* keep *) wire               [31:0] pov_mem_addr;
 	(* keep *) wire               [3:0]  pov_mem_byte_sel;
+
+	(* keep *) wire [6:0]   pitr_inst_v_opcode;
+	(* keep *) wire [11:7]  pitr_inst_v_reg_rd;
+	(* keep *) wire [14:12] pitr_inst_v_funct3;
+	(* keep *) wire [19:15] pitr_inst_v_reg_rs1;
+	(* keep *) wire [24:20] pitr_inst_v_reg_rs2;
+	(* keep *) wire [31:25] pitr_inst_v_funct7;
+
+	assign pitr_inst_v_opcode  = piv_inst[6:0];
+	assign pitr_inst_v_reg_rd  = piv_inst[11:7];
+	assign pitr_inst_v_funct3  = piv_inst[14:12];
+	assign pitr_inst_v_reg_rs1 = piv_inst[19:15];
+	assign pitr_inst_v_reg_rs2 = piv_inst[24:20];
+	assign pitr_inst_v_funct7  = piv_inst[31:25];
 
 	svx32_core uut (
 		.pil_clk		      (clock               ),
