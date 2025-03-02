@@ -16,6 +16,8 @@ compile_rtl: get_rtl
 	ghdl -a $(FLAGS) --work=work_rtl rtl/controller.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/if_unit.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/mem_access_interface_module.vhd
+	ghdl -a $(FLAGS) --work=work_rtl rtl/csr_op_unit_pkg.vhd
+	ghdl -a $(FLAGS) --work=work_rtl rtl/csr_op_unit.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/sys_regiser_file.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/ma_wb_pkg.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/int_mul_div.vhd
