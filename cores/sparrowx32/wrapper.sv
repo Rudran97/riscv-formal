@@ -18,6 +18,11 @@ module rvfi_wrapper (
 	(* keep *) wire               [31:0] pov_mem_addr;
 	(* keep *) wire               [3:0]  pov_mem_byte_sel;
 
+	(* keep *) `rvformal_rand_reg        pil_soft_irq;
+	(* keep *) `rvformal_rand_reg        pil_timer_irq;
+	(* keep *) `rvformal_rand_reg        pil_ext_irq;
+    (* keep *) wire                      pol_irq_pending;
+
 	(* keep *) wire [6:0]   pitr_inst_v_opcode;
 	(* keep *) wire [11:7]  pitr_inst_v_reg_rd;
 	(* keep *) wire [14:12] pitr_inst_v_funct3;
@@ -54,6 +59,12 @@ module rvfi_wrapper (
         .pov_mem_wdata        (pov_mem_wdata       ),
         .pov_mem_addr         (pov_mem_addr        ),
         .pov_mem_byte_sel     (pov_mem_byte_sel    ),
+
+		// --- IRQs ---
+		.pil_soft_irq         (pil_soft_irq        ),
+		.pil_timer_irq        (pil_timer_irq       ),
+		.pil_ext_irq          (pil_ext_irq         ),
+		.pol_irq_pending      (pol_irq_pending     ),
 
         // --- risc-v formal interface ---
 		`RVFI_CONN
