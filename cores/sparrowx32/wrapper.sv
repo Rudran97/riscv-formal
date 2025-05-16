@@ -10,6 +10,8 @@ module rvfi_wrapper (
 
 	(* keep *) `rvformal_rand_reg        pil_mem_valid;
 	(* keep *) `rvformal_rand_reg        pil_mem_ack;
+	// (* keep *) wire                      pil_mem_valid;
+	// (* keep *) wire                      pil_mem_ack;
 	(* keep *) wire                      pol_mem_req;
 	(* keep *) wire                      pol_mem_wen;
 
@@ -111,6 +113,14 @@ module rvfi_wrapper (
 			data_rsp_pending_valid <= 1;
 		end
 		restrict(~rvfi_trap && data_req_pending_cycles < 4 && data_rsp_pending_cycles < 4);
+	end
+
+	// The async interrupt pins cannot stay high for more than 5 Clock cycle after the pol_irq_pending is
+	// asserted.
+	reg [4:0] irq_wait = 0;
+	always @(posedge clock) begin
+		irq_wait <= {irq_wait, pol_irq_pending && (pil_soft_irq || pil_timer_irq || pil_ext_irq)};
+		assume (~irq_wait);
 	end
 `endif
 
