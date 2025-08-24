@@ -21,6 +21,8 @@ compile_rtl: compile_pkg
 	ghdl -a $(FLAGS) --work=work_rtl rtl/mul_unsigned_block.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/compressed_decoder.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/controller.vhd
+	ghdl -a $(FLAGS) --work=work_rtl rtl/fetch_interface_module.vhd
+	ghdl -a $(FLAGS) --work=work_rtl rtl/pipeline_mode_manager.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/if_unit.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/mem_access_interface_module.vhd
 	ghdl -a $(FLAGS) --work=work_rtl rtl/csr_op_unit.vhd
