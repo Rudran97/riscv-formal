@@ -1,13 +1,8 @@
 module testbench (
 	input clk,
 
-	input  [6:0]  pitr_inst_v_opcode,
-	input  [4:0]  pitr_inst_v_reg_rd,
-	input  [2:0]  pitr_inst_v_funct3,
-	input  [4:0]  pitr_inst_v_reg_rs1,
-	input  [4:0]  pitr_inst_v_reg_rs2,
-	input  [6:0]  pitr_inst_v_funct7,
-    output [31:0] pov_addr,
+	input  [31:0] piv_fetch_mem_rdata,
+    output [31:0] pov_fetch_mem_addr,
 
 	input         pil_mem_valid,
 	input         pil_mem_ack,
@@ -17,8 +12,12 @@ module testbench (
 	output [31:0] pov_mem_wdata,
 	output [31:0] pov_mem_addr,
 	output [3:0]  pov_mem_byte_sel,
-
 );
+
+	(* keep *) reg     pil_fetch_mem_valid = 0;
+	(* keep *) reg     pil_fetch_mem_ack = 0;
+	(* keep *) wire    pol_fetch_mem_req;
+
 	reg reset = 1;
 	wire trap;
 
@@ -31,15 +30,15 @@ module testbench (
 		.pil_clk		      (clk                 ),
         .pil_rst		      (reset               ),
         .pil_run_prg          (1'b1                ),
-        .pitr_inst_v_opcode   (pitr_inst_v_opcode  ),
-        .pitr_inst_v_reg_rd   (pitr_inst_v_reg_rd  ),
-        .pitr_inst_v_funct3   (pitr_inst_v_funct3  ),
-        .pitr_inst_v_reg_rs1  (pitr_inst_v_reg_rs1 ),
-        .pitr_inst_v_reg_rs2  (pitr_inst_v_reg_rs2 ),
-        .pitr_inst_v_funct7   (pitr_inst_v_funct7  ),
-        .pov_addr             (pov_addr            ),
 
-        // --- mem unit signals ---
+		// --- instruction fetch signals --- //
+		.pil_fetch_mem_valid  (pil_fetch_mem_valid   ),
+		.pil_fetch_mem_ack    (pil_fetch_mem_ack     ),
+		.pol_fetch_mem_req    (pol_fetch_mem_req     ),
+		.piv_fetch_mem_rdata  (piv_fetch_mem_rdata   ),
+		.pov_fetch_mem_addr   (pov_fetch_mem_addr    ),
+
+        // --- mem unit signals --- //
         .pil_mem_valid        (pil_mem_valid       ),
         .pil_mem_ack          (pil_mem_ack         ),
         .pol_mem_req          (pol_mem_req         ),
@@ -50,10 +49,23 @@ module testbench (
         .pov_mem_addr         (pov_mem_addr        ),
         .pov_mem_byte_sel     (pov_mem_byte_sel    ),
 
-        // --- risc-v formal interface ---
+        // --- risc-v formal interface --- //
 		`RVFI_CONN
 	);
 
+	// Restrict fetch delay //
+	always @(posedge clk) begin
+		pil_fetch_mem_ack <= pol_fetch_mem_req;
+	end
+
+	always @(posedge clk) begin
+		if (pil_fetch_mem_ack) begin
+			pil_fetch_mem_valid <= 1;
+		end else begin
+			pil_fetch_mem_valid <= 0;
+		end
+	end
+	
 	integer count_dmemrd = 0;
 	integer count_dmemwr = 0;
 	integer count_longinsn = 0;

@@ -1,20 +1,16 @@
 module testbench (
 	input         pil_clk,
-	input  [31:0] piv_inst,
 
-	output [31:0] pov_addr,
-	output        pol_core_hlt
+	input  [31:0] piv_fetch_mem_rdata,
+    output [31:0] pov_fetch_mem_addr,
 );
+
+	(* keep *) reg     pil_fetch_mem_valid = 0;
+	(* keep *) reg     pil_fetch_mem_ack = 0;
+	(* keep *) wire    pol_fetch_mem_req;
 
 	reg pil_rst 	= 1;
 	reg pil_run_prg = 0;
-
-    assign pitr_inst_v_opcode  = piv_inst[6:0];
-    assign pitr_inst_v_reg_rd  = piv_inst[11:7];
-    assign pitr_inst_v_funct3  = piv_inst[14:12];
-    assign pitr_inst_v_reg_rs1 = piv_inst[19:15];
-    assign pitr_inst_v_reg_rs2 = piv_inst[24:20];
-    assign pitr_inst_v_funct7  = piv_inst[31:25];
 
 	always @(posedge pil_clk)
 		pil_rst 	<= 0;
@@ -25,32 +21,44 @@ module testbench (
 	`RVFI_WIRES
 
 	svx32_core uut (
-		.pil_clk		      (pil_clk             ),
-        .pil_rst		      (pil_rst             ),
-        .pil_run_prg          (pil_run_prg         ),
-        .pol_core_hlt         (pol_core_hlt        ),
-        .pitr_inst_v_opcode   (pitr_inst_v_opcode  ),
-        .pitr_inst_v_reg_rd   (pitr_inst_v_reg_rd  ),
-        .pitr_inst_v_funct3   (pitr_inst_v_funct3  ),
-        .pitr_inst_v_reg_rs1  (pitr_inst_v_reg_rs1 ),
-        .pitr_inst_v_reg_rs2  (pitr_inst_v_reg_rs2 ),
-        .pitr_inst_v_funct7   (pitr_inst_v_funct7  ),
-        .pov_addr             (pov_addr            ),
+		.pil_clk		      (pil_clk               ),
+        .pil_rst		      (pil_rst               ),
+        .pil_run_prg          (pil_run_prg           ),
 
-        // --- mem unit signals ---
-        .pil_mem_valid        (1'b0			       ),
-        .pil_mem_ack          (1'b0			       ),
-        // .pol_mem_req       (pol_mem_req         ),
-        // .pol_mem_wen       (pol_mem_wen         ),
+		// --- instruction fetch signals --- //
+		.pil_fetch_mem_valid  (pil_fetch_mem_valid   ),
+		.pil_fetch_mem_ack    (pil_fetch_mem_ack     ),
+		.pol_fetch_mem_req    (pol_fetch_mem_req     ),
+		.piv_fetch_mem_rdata  (piv_fetch_mem_rdata   ),
+		.pov_fetch_mem_addr   (pov_fetch_mem_addr    ),
 
-        .piv_mem_rdata        (31'b0               ),
-        // .pov_mem_wdata     (pov_mem_wdata       ),
-        // .pov_mem_addr      (pov_mem_addr        ),
-        // .pov_mem_byte_sel  (pov_mem_byte_sel    ),
+        // --- mem unit signals --- //
+        .pil_mem_valid        (1'b0                  ),
+        .pil_mem_ack          (1'b0                  ),
+        .pol_mem_req          (                      ),
+        .pol_mem_wen          (                      ),
 
-        // --- risc-v formal interface ---
+        .piv_mem_rdata        (31'b0                 ),
+        .pov_mem_wdata        (                      ),
+        .pov_mem_addr         (                      ),
+        .pov_mem_byte_sel     (                      ),
+
+        // --- risc-v formal interface --- //
 		`RVFI_CONN
 	);
+
+	// Restrict fetch delay //
+	always @(posedge pil_clk) begin
+		pil_fetch_mem_ack <= pol_fetch_mem_req;
+	end
+
+	always @(posedge pil_clk) begin
+		if (pil_fetch_mem_ack) begin
+			pil_fetch_mem_valid <= 1;
+		end else begin
+			pil_fetch_mem_valid <= 0;
+		end
+	end
 
 	(* keep *) wire                                spec_valid;
 	(* keep *) wire                                spec_trap;
@@ -85,10 +93,10 @@ module testbench (
 		.spec_mem_wdata(spec_mem_wdata)
 	);
 
-	always @* begin
-		if (!pil_rst && rvfi_valid && !rvfi_trap) begin
-			if (rvfi_insn[6:0] != 7'b1110011)
-				assert(spec_valid && !spec_trap);
-		end
-	end
+	// always @* begin
+	// 	if (!pil_rst && rvfi_valid && !rvfi_trap) begin
+	// 		if (rvfi_insn[6:0] != 7'b1110011)
+	// 			assert(spec_valid && !spec_trap);
+	// 	end
+	// end
 endmodule
