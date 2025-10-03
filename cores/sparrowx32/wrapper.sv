@@ -31,6 +31,14 @@ module rvfi_wrapper (
 	(* keep *) `rvformal_rand_reg         pil_ext_irq;
     (* keep *) wire                       pol_irq_pending;
 
+	typedef enum { 
+		idle_st,
+		access_valid_st,
+		wait_next_st
+	} fetch_state_t;
+
+	fetch_state_t fetch_fsm_curr_t, fetch_fsm_next_t;
+
 	svx32_core uut (
 		.pil_clk		      (clock                 ),
         .pil_rst		      (reset                 ),
@@ -60,6 +68,15 @@ module rvfi_wrapper (
 		.pil_ext_irq          (pil_ext_irq           ),
 		.pol_irq_pending      (pol_irq_pending       ),
 
+		// --- Debug --- //
+		.pil_debug_haltreq    (1'b0                  ),
+		.pil_debug_resumereq  (1'b0                  ),
+
+		.pil_debug_regreq     (1'b0                  ),
+		.piv_debug_regno      (0                     ),
+		.pil_debug_write      (1'b0                  ),
+		.piv_debug_wdata      (0                     ),
+
         // --- risc-v formal interface --- //
 		`RVFI_CONN
 	);
@@ -83,17 +100,62 @@ module rvfi_wrapper (
 	// end
 
 	// Restrict fetch delay //
-	always @(posedge clock) begin
-		pil_fetch_mem_ack <= pol_fetch_mem_req;
-	end
+	// always @(posedge clock) begin
+	// 	pil_fetch_mem_ack <= pol_fetch_mem_req;
+	// end
 
-	always @(posedge clock) begin
-		if (pil_fetch_mem_ack) begin
-			pil_fetch_mem_valid <= 1;
-		end else begin
-			pil_fetch_mem_valid <= 0;
+	// always @(posedge clock) begin
+	// 	if (pil_fetch_mem_ack) begin
+	// 		pil_fetch_mem_valid <= 1;
+	// 	end else begin
+	// 		pil_fetch_mem_valid <= 0;
+	// 	end
+	// end
+
+	always_ff @( posedge clock or posedge reset ) begin
+		if (reset) begin
+			fetch_fsm_curr_t <= idle_st;
+		end
+		else begin
+			fetch_fsm_curr_t <= fetch_fsm_next_t;
 		end
 	end
+	
+	always_comb begin
+		case (fetch_fsm_curr_t)
+			idle_st: begin
+				pil_fetch_mem_ack   = 1'b0;
+				pil_fetch_mem_valid = 1'b0;
+
+				if (pol_fetch_mem_req) begin
+					fetch_fsm_next_t  = access_valid_st;
+				end
+				else
+					fetch_fsm_next_t  = idle_st;
+			end
+			access_valid_st: begin
+				pil_fetch_mem_ack   = 1'b1;
+				pil_fetch_mem_valid = 1'b1;
+
+				fetch_fsm_next_t = wait_next_st;
+			end
+			wait_next_st: begin
+				pil_fetch_mem_ack   = 1'b1;
+				pil_fetch_mem_valid = 1'b1;
+
+				if (!pol_fetch_mem_req)
+					fetch_fsm_next_t = idle_st;
+				else
+					fetch_fsm_next_t = wait_next_st;
+			end
+			default: begin
+				pil_fetch_mem_ack   = 1'b0;
+				pil_fetch_mem_valid = 1'b0;
+
+				fetch_fsm_next_t = idle_st;
+			end
+		endcase
+  	end
 
 `ifdef SPARROWX32_FAIRNESS
 	(* keep *) reg [2:0] data_req_pending_cycles = 0;
