@@ -27,12 +27,15 @@ module rvfi_wrapper (
 	(* keep *) `rvformal_rand_reg         pil_soft_irq;
 	(* keep *) `rvformal_rand_reg         pil_timer_irq;
 	(* keep *) `rvformal_rand_reg         pil_ext_irq;
+	(* keep *) `rvformal_rand_reg         pil_fast_irq;
+	(* keep *) `rvformal_rand_reg         piv_fast_irq_id;
+	(* keep *) `rvformal_rand_reg         piv_fast_irq_vect;
     (* keep *) wire                       pol_irq_pending;
 
 	svx32_core uut (
 		.pil_clk		      (clock                 ),
         .pil_rst		      (reset                 ),
-        .pil_run_prg          (1'b1                  ),
+        .pil_run_prg          (pil_run_prg           ),
 
 		// --- instruction fetch signals --- //
 		.pil_fetch_mem_valid  (pil_fetch_mem_valid   ),
@@ -56,6 +59,11 @@ module rvfi_wrapper (
 		.pil_soft_irq         (pil_soft_irq          ),
 		.pil_timer_irq        (pil_timer_irq         ),
 		.pil_ext_irq          (pil_ext_irq           ),
+
+		.pil_fast_irq         (pil_fast_irq          ),
+		.piv_fast_irq_id      (piv_fast_irq_id       ),
+		.piv_fast_irq_vect    (piv_fast_irq_vect     ),
+
 		.pol_irq_pending      (pol_irq_pending       ),
 
 		// --- Debug --- //
@@ -124,7 +132,7 @@ module rvfi_wrapper (
 	// asserted.
 	reg [4:0] irq_wait = 0;
 	always @(posedge clock) begin
-		irq_wait <= {irq_wait, pol_irq_pending && (pil_soft_irq || pil_timer_irq || pil_ext_irq)};
+		irq_wait <= {irq_wait, pol_irq_pending && (pil_soft_irq || pil_timer_irq || pil_ext_irq || pil_fast_irq)};
 		assume (~irq_wait);
 	end
 `endif
