@@ -18,6 +18,9 @@ module testbench (
 	(* keep *) reg     pil_fetch_mem_ack = 0;
 	(* keep *) wire    pol_fetch_mem_req;
 
+	(* keep *) reg                [31:0]  sv_prev_addr;
+	(* keep *) reg                [31:0]  sv_prev_inst;
+
 	reg reset = 1;
 	wire trap;
 
@@ -33,6 +36,16 @@ module testbench (
 		reset <= 0;
 
 	`RVFI_WIRES
+
+	always @(posedge clock) begin
+		sv_prev_addr <= pov_fetch_mem_addr;
+		sv_prev_inst <= piv_fetch_mem_rdata;
+
+		// if pov_fetch_mem_addr doesn't change,
+		// then keep the rdata unchanged as well.
+		if (pov_fetch_mem_addr == sv_prev_addr)
+			assume (piv_fetch_mem_rdata == sv_prev_inst);
+	end
 
 	svx32_core uut (
 		.pil_clk		      (clk                 ),

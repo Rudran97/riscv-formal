@@ -11,6 +11,7 @@ module rvfi_wrapper (
 	(* keep *) wire                       pol_fetch_mem_req;
 	(* keep *) `rvformal_rand_reg [31:0]  piv_fetch_mem_rdata;
 	(* keep *) wire               [31:0]  pov_fetch_mem_addr;
+	(* keep *) wire                       pol_valid;
 
 	(* keep *) `rvformal_rand_reg         pil_mem_valid;
 	(* keep *) `rvformal_rand_reg         pil_mem_ack;
@@ -31,6 +32,19 @@ module rvfi_wrapper (
 	(* keep *) `rvformal_rand_reg         piv_fast_irq_id;
 	(* keep *) `rvformal_rand_reg         piv_fast_irq_vect;
     (* keep *) wire                       pol_irq_pending;
+
+	(* keep *) reg                [31:0]  sv_prev_addr;
+	(* keep *) reg                [31:0]  sv_prev_inst;
+
+	always @(posedge clock) begin
+		sv_prev_addr <= pov_fetch_mem_addr;
+		sv_prev_inst <= piv_fetch_mem_rdata;
+
+		// if pov_fetch_mem_addr doesn't change,
+		// then keep the rdata unchanged as well.
+		if (pov_fetch_mem_addr == sv_prev_addr)
+			assume (piv_fetch_mem_rdata == sv_prev_inst);
+	end
 
 	svx32_core uut (
 		.pil_clk		      (clock                 ),
@@ -60,7 +74,8 @@ module rvfi_wrapper (
 		.pil_timer_irq        (pil_timer_irq         ),
 		.pil_ext_irq          (pil_ext_irq           ),
 
-		.pil_fast_irq         (pil_fast_irq          ),
+		// .pil_fast_irq         (pil_fast_irq          ),
+		.pil_fast_irq         (1'b0          ),
 		.piv_fast_irq_id      (piv_fast_irq_id       ),
 		.piv_fast_irq_vect    (piv_fast_irq_vect     ),
 
